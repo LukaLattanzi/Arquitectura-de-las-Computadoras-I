@@ -140,6 +140,10 @@ newcategory: # // PRO
 	la $a0, catName 
 	jal getblock
 
+	# Convierte la cadena a mayúsculas
+    move $a0, $v0       # $a0 = dirección de la cadena leída
+    jal to_upper       # se modifica la cadena en sitio
+
     # Mueve a $a2 la direccion de la cadena de caracteres obtenida
 	move $a2, $v0
 
@@ -163,6 +167,30 @@ newcategory_end: # // PRO
 	lw $ra, 4($sp)
 	addiu $sp, $sp, 4
 	jr $ra
+
+to_upper:
+
+    move $t0, $a0       # $t0 apunta al inicio de la cadena
+
+to_upper_loop:
+
+    lb $t1, 0($t0)      # Carga el carácter actual
+    beq $t1, $zero, to_upper_end   # Si es fin de cadena, termina
+    li $t2, 97          # ASCII de 'a'
+    blt $t1, $t2, skip_conversion  # Si es menor que 'a', no se modifica
+    li $t2, 122         # ASCII de 'z'
+    bgt $t1, $t2, skip_conversion  # Si es mayor que 'z', no se modifica
+    addi $t1, $t1, -32  # Convierte a mayúscula (por ejemplo, 'a'->'A')
+    sb $t1, 0($t0)      # Guarda el carácter convertido
+
+skip_conversion:
+
+    addiu $t0, $t0, 1   # Pasa al siguiente carácter
+    j to_upper_loop
+
+to_upper_end:
+
+    jr $ra             # Retorna a la función que llamó
 
 nextcategory: # // EST
 
